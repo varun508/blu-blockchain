@@ -39,21 +39,55 @@ class BlockChain {
     // initializes the chain with the genesis block
     constructor() {
         this.chain = [this.createGenesisBlock()];
-        this.difficulty = 4;
+        this.difficulty = 2;
+        this.pendingTransactions = [];
+        this.miningReward = 100;
     }
 
+
     createGenesisBlock() {
-        return new Block({ "name": "varun" }, '20/07/2019', '0');
+        return new Block([], '20/07/2019', '0');
     }
 
     getLatestBlock() {
         return this.chain[this.chain.length - 1];
     }
 
-    addBlock(block) {
-        block.previousHash = this.getLatestBlock().hash;
+    minePendingTransactions(miningRewardAddress) {
+        let block = new Block(this.pendingTransactions, Date.now());
         block.mineBlock(this.difficulty);
+
+        console.log("Block successfully mined...");
+
         this.chain.push(block);
+
+        this.pendingTransactions = [
+            new Transaction(null, miningRewardAddress, this.miningReward)
+        ];
+    }
+
+    createTransaction(transaction) {
+        this.pendingTransactions.push(transaction);
+    }
+
+    getBalanceofAddress(address) {
+        let balance = 0;
+
+        for (const block of this.chain) {
+            console.log(JSON.stringify(block.transactions));
+
+            for (const transaction of block.transactions) {
+                if (transaction.toAddress === address) {
+                    balance += transaction.amount;
+                }
+
+                if (transaction.fromAddress === address) {
+                    balance -= transaction.amount;
+                }
+            }
+        }
+
+        return balance;
     }
 
     isChainValid() {
@@ -75,3 +109,17 @@ class BlockChain {
 }
 
 let coin = new BlockChain();
+
+
+coin.createGenesisBlock(new Transaction('address1', 'address2', 100))
+coin.createGenesisBlock(new Transaction('address2', 'address1', 50))
+
+console.log("\nStarting the miner..");
+coin.minePendingTransactions('varuns-address')
+
+
+console.log("\nStarting the miner again..");
+coin.minePendingTransactions('varuns-address')
+
+console.log('\nBalance of varun is ' + coin.getBalanceofAddress('varuns-address'));
+
