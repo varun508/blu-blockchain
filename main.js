@@ -35,6 +35,23 @@ class BlockChain {
         block.hash = block.calculateHash();
         this.chain.push(block);
     }
+
+    isChainValid() {
+        for (let i = 1; i < this.chain.length; i++) {
+            const currentBlock = this.chain[i];
+            const previousBlock = this.chain[i - 1];
+
+            if (currentBlock.hash !== currentBlock.calculateHash()) {
+                return false;
+            }
+
+            if (currentBlock.previousHash !== previousBlock.hash) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 let coin = new BlockChain();
@@ -45,4 +62,11 @@ for (let i = 0; i < 20; i++) {
 }
 
 
-console.log(JSON.stringify(coin.chain,null,4));
+console.log(JSON.stringify(coin.chain, null, 4));
+
+
+if (coin.isChainValid()) {
+    console.log("The chain is valid")
+} else {
+    console.log("The chain isn't valid")
+}
