@@ -2,17 +2,16 @@ const SHA256 = require('crypto-js/sha256');
 
 class Block {
 
-    constructor(index, data, timestamp, previousHash = '') {
-        this.index = index;
+    constructor(transactions, timestamp, previousHash = '') {
         this.timestamp = timestamp;
-        this.data = data;
+        this.transactions = transactions;
         this.previousHash = previousHash;
         this.hash = this.calculateHash();
         this.nonce = 0;
     }
 
     calculateHash() {
-        return SHA256(this.index + this.timestamp + this.previousHash + JSON.stringify(this.data) + this.nonce).toString();
+        return SHA256(this.timestamp + this.previousHash + JSON.stringify(this.transactions) + this.nonce).toString();
     }
 
     mineBlock(difficulty) {
@@ -35,7 +34,7 @@ class BlockChain {
     }
 
     createGenesisBlock() {
-        return new Block(0, { "name": "varun" }, '20/07/2019', '0');
+        return new Block({ "name": "varun" }, '20/07/2019', '0');
     }
 
     getLatestBlock() {
@@ -67,18 +66,3 @@ class BlockChain {
 }
 
 let coin = new BlockChain();
-
-for (let i = 0; i < 20; i++) {
-    var index = i + 1;
-    coin.addBlock(new Block(index, { name: 'user' + index }, (index) + '/07/2019'));
-}
-
-
-// console.log(JSON.stringify(coin.chain, null, 4));
-
-if (coin.isChainValid()) {
-    console.log("The chain is valid")
-} else {
-    console.log("The chain isn't valid")
-}
-
